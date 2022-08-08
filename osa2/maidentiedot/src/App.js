@@ -33,16 +33,42 @@ const CountryList = ({ filteredCountries }) => {
         <p>Capital: {country.capital}</p>
         <p>Area: {country.area} m<sup>2</sup></p>
         <h4>Languages:</h4>
-          <ul key={country.name}>
+          <ul>
             {languages.map(language => 
-              <li>{language}</li>
+              <li key={language}>{language}</li>
             )}
           </ul>
-        <img src={country.flags.png} width='240' height='160'></img>
+        <img src={country.flags.png} alt='flag' width='240' height='160'></img>
+        <Weather country={country}/>
       </div>
     )
-
   }
+}
+
+const Weather = ({ country }) => {
+  const lat = country.capitalInfo.latlng[0]
+  const lon = country.capitalInfo.latlng[1]
+  const apiKey = process.env.REACT_APP_API_KEY
+  const [weather, setWeather] = useState(null)
+
+  useEffect(() => {
+    axios
+      .get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
+      .then(response => {
+        setWeather(response.data)
+      })
+  },[])
+  
+  if (weather===null) return
+
+  return(
+    <div>
+      <h2>Weather in {country.capital}</h2>
+      <p>Temperature {weather.main.temp} Celcius</p>
+      <img src={`http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`} alt='weather icon'/>
+      <p>Wind {weather.wind.speed} m/s</p>
+    </div>
+  )
 }
 
 const App = () => {
@@ -56,7 +82,6 @@ const App = () => {
       .get('https://restcountries.com/v3.1/all')
       .then(response => {
         setCountries(response.data)
-        console.log('axios', response.data)
       })
 
 
