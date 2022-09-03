@@ -25,12 +25,7 @@ app.get('/', (request, response, next) => {
 
 app.get('/api/notes', (request, response) => {
     Note.find({}).then(notes => {
-      console.log(notes)
-      response.status(401).json(notes)
-    })
-    .catch(error => {
-      console.log(error.message)
-      return response.status(401).send({ error: 'test' })
+      response.json(notes)
     })
 })
 
