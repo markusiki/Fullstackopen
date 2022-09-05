@@ -1,7 +1,7 @@
 require('dotenv').config()
 
-let PORT = 3003
-let MONGODB_URI = 'mongodb+srv://MarkusIK:9autwXy1U43Y7o6f@cluster0.ngfhw.mongodb.net/blogilista?retryWrites=true&w=majority'
+let PORT = process.env.PORT
+let MONGODB_URI = process.env.MONGODB_URI
 
 module.exports = {
   PORT,
