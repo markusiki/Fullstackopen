@@ -10,7 +10,8 @@
     "build:ui": "rm -rf build && cd ../../osa2/frontendharjoitus/ && npm run build && cp -r build ../../osa3/notes-backend",
     "deploy": "cd ../.. && git subtree push --prefix osa3/notes-backend heroku main",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",
-    "logs:prod": "heroku logs --tail"
+    "logs:prod": "heroku logs --tail",
+    "lint": "eslint ."
   },
   "keywords": [
     "\u001b[A\u001b[B"
@@ -24,6 +25,7 @@
     "mongoose": "^6.5.3"
   },
   "devDependencies": {
+    "eslint": "^8.23.0",
     "nodemon": "^2.0.19"
   }
 }
