@@ -16,9 +16,6 @@ const blogSchema = mongoose.Schema({
 blogSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
-    returnedObject.likes === null
-      ? returnedObject.likes = 0
-      : returnedObject.likes = returnedObject.likes
     delete returnedObject._id
   }
 })

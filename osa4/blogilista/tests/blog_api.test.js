@@ -61,7 +61,6 @@ test('if likes has no value, the value is set to 0', async () => {
 
   const notesAtEnd = await helper.blogsInDb()
   notesAtEnd.forEach(element => {
-    console.log(element)
     expect(element.likes).not.toBeNull()
   })
 })
