@@ -5,8 +5,10 @@ const blog = require('../models/blog')
 const api = supertest(app)
 const Blog = require('../models/blog')
 const helper = require('./test_helper')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
-describe('when there is initially some notes saved', () => {
+describe('when there is initially some blogs saved', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(helper.initialBlogs)
@@ -114,6 +116,80 @@ describe('when there is initially some notes saved', () => {
       const blogsAtEnd = await helper.blogsInDb()
       expect(blogsAtEnd[0].title).toEqual(updatedBlog.title)
     })
+  })
+})
+
+describe('when there is initially one user at db', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('secret', 10)
+    const user = new User({ username: 'admin', passwordHash })
+
+    await user.save()
+  })
+
+  test('creation fails if username is less than 3 digits', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'aa',
+      name: 'user',
+      password: 'secret',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+      
+    expect(result.body.error).toContain('Username and password must contain at least 3 digits')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+
+  test('creation fails if password is less than 3 digits', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'user',
+      name: 'user',
+      password: 'se',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+      
+    expect(result.body.error).toContain('Username and password must contain at least 3 digits')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+
+  test('creation fails with proper statuscode and message if username already exists', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'admin',
+      name: 'user',
+      password: 'unknown'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('Username must be unique')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
   })
 })
   
