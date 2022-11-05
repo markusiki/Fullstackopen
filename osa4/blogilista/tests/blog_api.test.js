@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-const blog = require('../models/blog')
 const api = supertest(app)
 const Blog = require('../models/blog')
 const helper = require('./test_helper')
@@ -30,6 +29,19 @@ describe('when there is initially some blogs saved', () => {
   })
 
   describe('addition of a new blog', () => {
+    beforeEach(async () => {
+      await User.deleteMany({})
+      const password = 'password'
+      const passwordHash = await bcrypt.hash(password, 10)
+    
+      const user =  new User({
+        username: 'user',
+        passwordHash
+      })
+    
+      await user.save()
+    })
+
     test('succeeds with a valid data', async () => {
       const newBlog = {
         title: 'This is a new blog',
@@ -40,7 +52,8 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .post('/api/blogs')
-        .send(newBlog)
+        .send(newBlog) 
+        .set('Authorization', `bearer ${await helper.userLogin()}`)
         .expect(201)
         
       const blogsAtEnd = await helper.blogsInDb()
@@ -60,6 +73,7 @@ describe('when there is initially some blogs saved', () => {
       await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `bearer ${await helper.userLogin()}`)
 
       const notesAtEnd = await helper.blogsInDb()
       notesAtEnd.forEach(element => {
@@ -76,21 +90,68 @@ describe('when there is initially some blogs saved', () => {
       await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `bearer ${await helper.userLogin()}`)
         .expect(400)
+    })
+
+    test('fails with statuscode 401 Unauthorized if the request does not have a token', async () => {
+      const newBlog = {
+        title: 'fails with statuscode 401 Unauthorized if the request does not have a token',
+        author: 'test',
+        url: 'test.com',
+        likes: ''
+      }
+
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401)
+
+      const notesAtEnd = await helper.blogsInDb()
+        expect(notesAtEnd).toHaveLength(helper.initialBlogs.length)
     })
   })
 
   describe('deletion of a blog', () => {
+    beforeEach(async () => {
+      await User.deleteMany({})
+      const password = 'password'
+      const passwordHash = await bcrypt.hash(password, 10)
+    
+      const user =  new User({
+        username: 'user',
+        passwordHash
+      })
+    
+      await user.save()
+
+      const newBlog = {
+        title: 'deletion of a blog',
+        author: 'test',
+        url: 'test.com',
+        likes: ''
+      }
+
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .set('Authorization', `bearer ${await helper.userLogin()}`)
+        .expect(201)  
+
+    })
+
     test('succeeds with statuscode 204', async () => {
       const blogs = await helper.blogsInDb()
-      const blogToDelete = blogs[0]
+      const blogToDelete = blogs[3]
+        expect(blogToDelete.title).toEqual('deletion of a blog')
 
       await api
         .delete(`/api/blogs/${blogToDelete.id}`)
         .expect(204)
+        .set('Authorization', `bearer ${await helper.userLogin()}`)  
 
       const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
 
       const titles = blogsAtEnd.map(blog => blog.title)
         expect(titles).not.toContain(blogToDelete.title)
