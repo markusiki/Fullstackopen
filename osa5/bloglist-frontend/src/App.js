@@ -3,6 +3,8 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import LoginForm from './components/LoginForm'
+import NewBlogForm from './components/NewBlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -80,59 +82,10 @@ const App = () => {
       }, 5000)
     }
   }
-
-  const loginForm = () => (
-    <div>
-    <h2>Log in to application</h2>
-    <Notification message={message} errorMessage={errorMessage} />
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-          <input
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-          />
-      </div>
-      <div>
-        password
-          <input
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-          />
-      </div>
-      <button type='submit'>login</button>
-    </form>
-  </div>
-  )
-
-  const newBlogForm = () => (
-    <div>
-      <h2>create new</h2>
-      <form onSubmit={handleNewBlog}>
-        <div>
-          title:
-            <input type='text' value={newBlog.title} name='title' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
-        </div>
-        <div>
-          author:
-            <input type='text' value={newBlog.author} name='author' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
-        </div>
-        <div>
-          url:
-            <input type='text' value={newBlog.url} name='url' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
-        </div>
-        <button type='submit'>create</button>
-      </form>
-    </div>
-  )
-
+  
   if (user === null) {
     return (
-      loginForm()
+      <LoginForm username={username} password={password} message={message} errorMessage={errorMessage} setUsername={setUsername} setPassword={setPassword} handleLogin={handleLogin}/>
     )
   }
   
@@ -141,7 +94,7 @@ const App = () => {
       <h2>blogs</h2>
       <Notification message={message} errorMessage={errorMessage} />
       <p>{user.name} logged in <button type='submit' onClick={handleLogout}>logout</button></p>
-      {newBlogForm()}
+      <NewBlogForm handleNewBlog={handleNewBlog} newBlog={newBlog} setNewBlog={setNewBlog}/>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
