@@ -5,6 +5,7 @@ import loginService from './services/login'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -13,7 +14,7 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [message, setMessage] = useState(null)
-  const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' })
+  
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -55,37 +56,13 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
   }
-
-  const handleNewBlog = async (event) => {
-    event.preventDefault()
-    try {
-      const blog = {
-        title: newBlog.title,
-        author: newBlog.author,
-        url: newBlog.url,
-        user: user
-      }
-      
-      const returnedBlog = await blogService.create(blog)
-      console.log(returnedBlog)
-      setBlogs([...blogs, returnedBlog])
-      setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
-      setNewBlog({ title: '', author: '', url: '' })
-    }
-    catch (exeption) {
-      setErrorMessage(exeption.response.data.error)
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    }
-  }
   
   if (user === null) {
     return (
-      <LoginForm username={username} password={password} message={message} errorMessage={errorMessage} setUsername={setUsername} setPassword={setPassword} handleLogin={handleLogin}/>
+      <LoginForm username={username} password={password}
+      message={message} errorMessage={errorMessage}
+      setUsername={setUsername} setPassword={setPassword}
+      handleLogin={handleLogin}/>
     )
   }
   
@@ -94,7 +71,9 @@ const App = () => {
       <h2>blogs</h2>
       <Notification message={message} errorMessage={errorMessage} />
       <p>{user.name} logged in <button type='submit' onClick={handleLogout}>logout</button></p>
-      <NewBlogForm handleNewBlog={handleNewBlog} newBlog={newBlog} setNewBlog={setNewBlog}/>
+      <Togglable buttonLabel='new blog'>
+        <NewBlogForm user={user} setBlogs={setBlogs} blogs={blogs} setMessage={setMessage} setErrorMessage={setErrorMessage} />
+      </Togglable>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}

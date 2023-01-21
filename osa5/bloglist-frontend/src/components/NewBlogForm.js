@@ -1,4 +1,38 @@
-const NewBlogForm = ({ handleNewBlog, newBlog, setNewBlog }) => (
+import { useState } from "react"
+import blogService from '../services/blogs'
+
+const NewBlogForm = ({ user, setBlogs, blogs, setMessage, setErrorMessage }) => {
+  
+  const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' })
+
+  const handleNewBlog = async (event) => {
+    event.preventDefault()
+    try {
+      const blog = {
+        title: newBlog.title,
+        author: newBlog.author,
+        url: newBlog.url,
+        user: user
+      }
+      
+      const returnedBlog = await blogService.create(blog)
+      console.log(returnedBlog)
+      setBlogs([...blogs, returnedBlog])
+      setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} by user ${user.name} added`)
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+      setNewBlog({ title: '', author: '', url: '' })
+    }
+    catch (exeption) {
+      setErrorMessage(exeption.response.data.error)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
+  return (
     <div>
       <h2>create new</h2>
       <form onSubmit={handleNewBlog}>
@@ -17,6 +51,7 @@ const NewBlogForm = ({ handleNewBlog, newBlog, setNewBlog }) => (
         <button type='submit'>create</button>
       </form>
     </div>
-  )
+    )
+  }
 
 export default NewBlogForm
