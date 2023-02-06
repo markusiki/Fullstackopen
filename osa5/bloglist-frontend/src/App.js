@@ -14,18 +14,19 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [message, setMessage] = useState(null)
-  
+
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
+      blogService.setToken(user.token)
       setUser(user)
     }
   }, [])
@@ -39,7 +40,7 @@ const App = () => {
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       )
-      blogService.setToken(user.token)      
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
@@ -56,16 +57,16 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
   }
-  
+
   if (user === null) {
     return (
       <LoginForm username={username} password={password}
-      message={message} errorMessage={errorMessage}
-      setUsername={setUsername} setPassword={setPassword}
-      handleLogin={handleLogin}/>
+        message={message} errorMessage={errorMessage}
+        setUsername={setUsername} setPassword={setPassword}
+        handleLogin={handleLogin}/>
     )
   }
-  
+
   return (
     <div>
       <h2>blogs</h2>

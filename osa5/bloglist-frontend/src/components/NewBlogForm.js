@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useState } from 'react'
 import blogService from '../services/blogs'
+import PropTypes from 'prop-types'
 
 const NewBlogForm = ({ user, setBlogs, blogs, setMessage, setErrorMessage }) => {
-  
+
   const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' })
 
   const handleNewBlog = async (event) => {
@@ -14,11 +15,10 @@ const NewBlogForm = ({ user, setBlogs, blogs, setMessage, setErrorMessage }) => 
         url: newBlog.url,
         user: user
       }
-      
+
       const returnedBlog = await blogService.create(blog)
-      console.log(returnedBlog)
       setBlogs([...blogs, returnedBlog])
-      setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} by user ${user.name} added`)
+      setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
       setTimeout(() => {
         setMessage(null)
       }, 5000)
@@ -38,20 +38,26 @@ const NewBlogForm = ({ user, setBlogs, blogs, setMessage, setErrorMessage }) => 
       <form onSubmit={handleNewBlog}>
         <div>
           title:
-            <input type='text' value={newBlog.title} name='title' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
+          <input type='text' value={newBlog.title} name='title' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
         </div>
         <div>
           author:
-            <input type='text' value={newBlog.author} name='author' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
+          <input type='text' value={newBlog.author} name='author' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
         </div>
         <div>
           url:
-            <input type='text' value={newBlog.url} name='url' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
+          <input type='text' value={newBlog.url} name='url' onChange={({ target }) => setNewBlog({ ...newBlog, [target.name]: target.value })}/>
         </div>
         <button type='submit'>create</button>
       </form>
     </div>
-    )
-  }
+  )
+}
+
+NewBlogForm.propTypes = {
+  user: PropTypes.object.isRequired,
+  setBlogs: PropTypes.func.isRequired,
+  blogs: PropTypes.array.isRequired
+}
 
 export default NewBlogForm
