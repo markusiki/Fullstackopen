@@ -1,5 +1,6 @@
 import axios from 'axios'
 const baseUrl = '/api/blogs'
+import 'regenerator-runtime'
 
 let token = null
 

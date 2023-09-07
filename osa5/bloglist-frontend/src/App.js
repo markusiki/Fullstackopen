@@ -58,6 +58,33 @@ const App = () => {
     setUser(null)
   }
 
+  const handleLike = async (event, blog) => {
+    event.preventDefault()
+
+    const likedBlog = {
+      user: blog.user,
+      likes: blog.likes + 1,
+      author: blog.author,
+      title: blog.title,
+      url: blog.url
+    }
+
+    const returnedBlog = await blogService.addLike(likedBlog, blog.id)
+    console.log(returnedBlog)
+    setBlogs(blogs.map(blog => blog.id !== returnedBlog.id ? blog : returnedBlog))
+  }
+
+  const handleRemove = async (event, blog) => {
+    event.preventDefault()
+
+    if(window.confirm(`Remove blog ${blog.title} by ${blog.author}`)){
+      const returnedBlog = await blogService.remove(blog.id)
+      if (returnedBlog.status === 204) {
+        setBlogs(blogs.filter(blogToRemove => blogToRemove.id !== blog.id))
+      }
+    }
+  }
+
   if (user === null) {
     return (
       <LoginForm username={username} password={password}
@@ -76,7 +103,7 @@ const App = () => {
         <NewBlogForm user={user} setBlogs={setBlogs} blogs={blogs} setMessage={setMessage} setErrorMessage={setErrorMessage} />
       </Togglable>
       {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-        <Blog key={blog.id} blog={blog} blogs={blogs} setBlogs={setBlogs} user={user} />
+        <Blog key={blog.id} blog={blog} user={user} handleLike={handleLike} handleRemove={handleRemove} />
       )}
     </div>
   )
