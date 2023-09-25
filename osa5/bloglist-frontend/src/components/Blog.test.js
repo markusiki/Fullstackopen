@@ -21,7 +21,6 @@ test('render blog title and author', () => {
   render(<Blog blog={blog} user={username}/>)
 
   const blogTitle = screen.getByText('Component testing is done with react-testing-library test author')
-  screen.debug(blogTitle)
   expect(blogTitle).toBeDefined()
 })
 
@@ -48,7 +47,6 @@ test('clicking "view" button reveals all information of a blog', async () => {
 
   const textElement = screen.getByText('"view" button reveals it all test author likes 1 test name')
   expect(textElement).toBeDefined()
-  screen.debug(textElement)
   const aElement = screen.getByRole('link', { name: 'testblog.com' })
   expect(aElement).toHaveTextContent('testblog.com')
 })
@@ -79,7 +77,6 @@ test('when like-button is pressed twice, the event handler function is called tw
   await user.click(likeButton)
   await user.click(likeButton)
 
-  screen.debug()
   expect(mockHandler.mock.calls).toHaveLength(2)
 })
 

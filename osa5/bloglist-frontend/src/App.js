@@ -15,7 +15,6 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [message, setMessage] = useState(null)
 
-
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
@@ -85,6 +84,30 @@ const App = () => {
     }
   }
 
+  const handleNewBlog = async (newBlog) => {
+    try {
+      const blog = {
+        title: newBlog.title,
+        author: newBlog.author,
+        url: newBlog.url,
+        user: user
+      }
+
+      const returnedBlog = await blogService.create(blog)
+      setBlogs([...blogs, returnedBlog])
+      setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    }
+    catch (exeption) {
+      setErrorMessage(exeption.response.data.error)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
   if (user === null) {
     return (
       <LoginForm username={username} password={password}
@@ -100,7 +123,7 @@ const App = () => {
       <Notification message={message} errorMessage={errorMessage} />
       <p>{user.name} logged in <button type='submit' onClick={handleLogout}>logout</button></p>
       <Togglable buttonLabel='new blog'>
-        <NewBlogForm user={user} setBlogs={setBlogs} blogs={blogs} setMessage={setMessage} setErrorMessage={setErrorMessage} />
+        <NewBlogForm handleNewBlog={handleNewBlog} />
       </Togglable>
       {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
         <Blog key={blog.id} blog={blog} user={user} handleLike={handleLike} handleRemove={handleRemove} />
